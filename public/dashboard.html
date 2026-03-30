@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Private Cloud - Files</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #0a0c15 0%, #1a1f2e 100%);
+            min-height: 100vh;
+            color: #e2e8f0;
+        }
+        
+        body::before {
+            content: "🦅";
+            position: fixed;
+            font-size: 300px;
+            opacity: 0.05;
+            bottom: 0;
+            right: 0;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(59,130,246,0.2);
+            margin-bottom: 2rem;
+        }
+        
+        .logo h1 {
+            font-size: 1.5rem;
+            background: linear-gradient(135deg, #fff, #60a5fa);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .lang-switch {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .lang-btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(59,130,246,0.3);
+            padding: 0.4rem 1rem;
+            border-radius: 2rem;
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .lang-btn.active {
+            background: #3b82f6;
+        }
+        
+        .user-info {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        .logout-btn {
+            background: rgba(239,68,68,0.2);
+            border: 1px solid #ef4444;
+            padding: 0.4rem 1rem;
+            border-radius: 2rem;
+            color: #f87171;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .logout-btn:hover {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .search-box {
+            margin-bottom: 2rem;
+        }
+        
+        .search-box input {
+            width: 100%;
+            max-width: 400px;
+            padding: 0.8rem 1rem;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(59,130,246,0.3);
+            border-radius: 2rem;
+            color: white;
+            font-size: 1rem;
+        }
+        
+        .search-box input:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+        
+        .upload-area {
+            background: rgba(255,255,255,0.03);
+            border: 2px dashed rgba(59,130,246,0.3);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            margin-bottom: 2rem;
+            transition: all 0.2s;
+        }
+        
+        .upload-area:hover {
+            border-color: #3b82f6;
+            background: rgba(59,130,246,0.05);
+        }
+        
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .files-section {
+            background: rgba(255,255,255,0.03);
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .file-stats {
+            background: rgba(255,255,255,0.05);
+            padding: 0.3rem 0.8rem;
+            border-radius: 1rem;
+            font-size: 0.8rem;
+        }
+        
+        .files-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1rem;
+        }
+        
+        .file-card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(59,130,246,0.2);
+            border-radius: 1rem;
+            padding: 1rem;
+            transition: all 0.2s;
+        }
+        
+        .file-card:hover {
+            border-color: #3b82f6;
+            transform: translateY(-2px);
+        }
+        
+        .file-icon {
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+        
+        .file-name {
+            text-align: center;
+            font-size: 0.9rem;
+            word-break: break-all;
+            margin-bottom: 0.25rem;
+        }
+        
+        .file-size {
+            text-align: center;
+            font-size: 0.7rem;
+            color: rgba(255,255,255,0.5);
+            margin-bottom: 1rem;
+        }
+        
+        .file-actions {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+        }
+        
+        .file-actions button {
+            padding: 0.4rem 1rem;
+            border-radius: 1.5rem;
+            font-size: 0.75rem;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+        
+        .download-btn {
+            background: rgba(59,130,246,0.2);
+            color: #60a5fa;
+        }
+        
+        .download-btn:hover {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .delete-btn {
+            background: rgba(239,68,68,0.2);
+            color: #f87171;
+        }
+        
+        .delete-btn:hover {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .empty-state, .loading-state {
+            text-align: center;
+            padding: 3rem;
+            color: rgba(255,255,255,0.5);
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(59,130,246,0.2);
+            border-top-color: #3b82f6;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: rgba(0,0,0,0.9);
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            border-left: 3px solid #3b82f6;
+            animation: slideIn 0.3s ease;
+            z-index: 1000;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @media (max-width: 768px) {
+            .container { padding: 1rem; }
+            .header { flex-direction: column; text-align: center; }
+            .files-grid { grid-template-columns: 1fr; }
+            .toast { bottom: 1rem; right: 1rem; left: 1rem; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <h1 id="appTitle">Private Cloud</h1>
+            </div>
+            <div class="lang-switch">
+                <button class="lang-btn" data-lang="ru" onclick="setLanguage('ru')">🇷🇺 Рус</button>
+                <button class="lang-btn" data-lang="en" onclick="setLanguage('en')">🇬🇧 En</button>
+                <button class="lang-btn" data-lang="de" onclick="setLanguage('de')">🇩🇪 De</button>
+            </div>
+            <div class="user-info">
+                <span>👤 Admin</span>
+                <button class="logout-btn" onclick="logout()" id="logoutBtn">Logout</button>
+            </div>
+        </div>
+        
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="Search files...">
+        </div>
+        
+        <div class="upload-area" id="uploadArea">
+            <div class="upload-icon">📁</div>
+            <h3 id="uploadTitle">Upload files</h3>
+            <p id="uploadHint">Click or drag files here</p>
+            <input type="file" id="fileInput" multiple style="display: none;">
+        </div>
+        
+        <div class="files-section">
+            <div class="section-header">
+                <h2 id="filesTitle">📄 My files</h2>
+                <span class="file-stats" id="fileStats">0 files</span>
+            </div>
+            <div id="fileListContainer">
+                <div class="loading-state">
+                    <div class="spinner"></div>
+                    <p>Loading...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // ========== ПЕРЕВОДЫ ==========
+        const translations = {
+            ru: {
+                app_name: "Private Cloud",
+                logout: "Выйти",
+                upload_title: "Загрузить файлы",
+                upload_hint: "Нажмите или перетащите файлы",
+                files_title: "📄 Мои файлы",
+                search_placeholder: "Поиск файлов...",
+                download: "Скачать",
+                delete: "Удалить",
+                loading: "Загрузка...",
+                no_files: "Нет загруженных файлов",
+                files_count: "файлов",
+                confirm_delete: "Удалить этот файл?"
+            },
+            en: {
+                app_name: "Private Cloud",
+                logout: "Logout",
+                upload_title: "Upload files",
+                upload_hint: "Click or drag files here",
+                files_title: "📄 My files",
+                search_placeholder: "Search files...",
+                download: "Download",
+                delete: "Delete",
+                loading: "Loading...",
+                no_files: "No files uploaded",
+                files_count: "files",
+                confirm_delete: "Delete this file?"
+            },
+            de: {
+                app_name: "Private Cloud",
+                logout: "Abmelden",
+                upload_title: "Dateien hochladen",
+                upload_hint: "Klicken oder Dateien hierher ziehen",
+                files_title: "📄 Meine Dateien",
+                search_placeholder: "Dateien suchen...",
+                download: "Herunterladen",
+                delete: "Löschen",
+                loading: "Laden...",
+                no_files: "Keine Dateien",
+                files_count: "Dateien",
+                confirm_delete: "Diese Datei löschen?"
+            }
+        };
+        
+        let currentLang = localStorage.getItem('lang') || 'en';
+        let allFiles = [];
+        let searchTerm = '';
+        
+        function t(key) {
+            return translations[currentLang][key] || translations['en'][key] || key;
+        }
+        
+        function setLanguage(lang) {
+            if (!translations[lang]) return;
+            currentLang = lang;
+            localStorage.setItem('lang', lang);
+            
+            // Обновляем UI
+            document.getElementById('appTitle').textContent = t('app_name');
+            document.getElementById('logoutBtn').textContent = t('logout');
+            document.getElementById('uploadTitle').textContent = t('upload_title');
+            document.getElementById('uploadHint').textContent = t('upload_hint');
+            document.getElementById('filesTitle').textContent = t('files_title');
+            document.getElementById('searchInput').placeholder = t('search_placeholder');
+            
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                if (btn.dataset.lang === lang) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+            
+            renderFileList();
+        }
+        
+        function getFileIcon(filename) {
+            const ext = filename.split('.').pop().toLowerCase();
+            const icons = {
+                'pdf': '📄', 'jpg': '🖼️', 'png': '🖼️', 'gif': '🖼️',
+                'mp4': '🎬', 'mp3': '🎵', 'zip': '📦', 'rar': '📦',
+                'txt': '📝', 'doc': '📘', 'docx': '📘', 'xls': '📗', 'xlsx': '📗'
+            };
+            return icons[ext] || '📎';
+        }
+        
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+        
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+        
+        async function loadFiles() {
+            const container = document.getElementById('fileListContainer');
+            try {
+                const response = await fetch('/api/files');
+                if (!response.ok) throw new Error();
+                allFiles = await response.json();
+                renderFileList();
+            } catch (error) {
+                container.innerHTML = '<div class="empty-state">❌ Failed to load files</div>';
+            }
+        }
+        
+        function renderFileList() {
+            const container = document.getElementById('fileListContainer');
+            const statsSpan = document.getElementById('fileStats');
+            
+            let filtered = allFiles;
+            if (searchTerm.trim()) {
+                filtered = allFiles.filter(f => f.name.toLowerCase().includes(searchTerm.toLowerCase()));
+            }
+            
+            statsSpan.textContent = `${filtered.length} ${t('files_count')}`;
+            
+            if (filtered.length === 0) {
+                container.innerHTML = `<div class="empty-state">📂 ${searchTerm ? 'No matching files' : t('no_files')}</div>`;
+                return;
+            }
+            
+            container.innerHTML = `
+                <div class="files-grid">
+                    ${filtered.map(file => `
+                        <div class="file-card">
+                            <div class="file-icon">${getFileIcon(file.name)}</div>
+                            <div class="file-name">${escapeHtml(file.name)}</div>
+                            <div class="file-size">${formatFileSize(file.size)}</div>
+                            <div class="file-actions">
+                                <button class="download-btn" onclick="downloadFile('${escapeHtml(file.id)}')">⬇️ ${t('download')}</button>
+                                <button class="delete-btn" onclick="deleteFile('${escapeHtml(file.id)}', '${escapeHtml(file.name)}')">🗑️ ${t('delete')}</button>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        async function uploadFiles(files) {
+            const formData = new FormData();
+            files.forEach(f => formData.append('files', f));
+            
+            try {
+                const response = await fetch('/api/upload', { method: 'POST', body: formData });
+                if (response.ok) {
+                    showToast(`✅ Uploaded ${files.length} file(s)`);
+                    loadFiles();
+                } else {
+                    showToast('❌ Upload failed');
+                }
+            } catch (error) {
+                showToast('❌ Upload failed');
+            }
+        }
+        
+        function downloadFile(fileId) {
+            window.location.href = `/api/download/${encodeURIComponent(fileId)}`;
+            showToast(`📥 Downloading...`);
+        }
+        
+        async function deleteFile(fileId, fileName) {
+            if (!confirm(t('confirm_delete') + ` "${fileName}"?`)) return;
+            try {
+                const response = await fetch(`/api/files/${encodeURIComponent(fileId)}`, { method: 'DELETE' });
+                if (response.ok) {
+                    showToast(`🗑️ Deleted ${fileName}`);
+                    loadFiles();
+                } else {
+                    showToast('❌ Delete failed');
+                }
+            } catch (error) {
+                showToast('❌ Delete failed');
+            }
+        }
+        
+        async function logout() {
+            await fetch('/api/logout', { method: 'POST' });
+            window.location.href = '/';
+        }
+        
+        // Инициализация
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Проверка сессии
+            const res = await fetch('/api/check-session');
+            const data = await res.json();
+            if (!data.authenticated) {
+                window.location.href = '/';
+                return;
+            }
+            
+            // Загрузка языка
+            const savedLang = localStorage.getItem('lang');
+            if (savedLang && translations[savedLang]) setLanguage(savedLang);
+            else setLanguage('en');
+            
+            // Загрузка файлов
+            await loadFiles();
+            
+            // Поиск
+            const searchInput = document.getElementById('searchInput');
+            let timeout;
+            searchInput.addEventListener('input', (e) => {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => {
+                    searchTerm = e.target.value;
+                    renderFileList();
+                }, 300);
+            });
+            
+            // Загрузка файлов
+            const uploadArea = document.getElementById('uploadArea');
+            const fileInput = document.getElementById('fileInput');
+            
+            uploadArea.addEventListener('click', () => fileInput.click());
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files.length) uploadFiles(Array.from(e.target.files));
+                fileInput.value = '';
+            });
+            
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.style.borderColor = '#3b82f6';
+            });
+            
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.style.borderColor = 'rgba(59,130,246,0.3)';
+            });
+            
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.style.borderColor = 'rgba(59,130,246,0.3)';
+                const files = Array.from(e.dataTransfer.files);
+                if (files.length) uploadFiles(files);
+            });
+        });
+        
+        // Глобальные функции
+        window.setLanguage = setLanguage;
+        window.downloadFile = downloadFile;
+        window.deleteFile = deleteFile;
+        window.logout = logout;
+    </script>
+</body>
+</html>
